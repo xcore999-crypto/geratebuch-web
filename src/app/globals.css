@@ -1,0 +1,291 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand blue — primary geratebuch.de color (CTAs, links, active states) */
+  --color-brand-50: #ebfaf9;
+  --color-brand-100: #d4f4f1;
+  --color-brand-200: #aae8e4;
+  --color-brand-300: #70d6d1;
+  --color-brand-400: #35c1bc;
+  --color-brand-500: #18aaa6;
+  --color-brand-600: #0d8e8a;
+  --color-brand-700: #0b716f;
+  --color-brand-800: #0d5958;
+  --color-brand-900: #0d4948;
+  --color-brand-950: #052e2d;
+
+  /* Navy — portal dark surface */
+  --color-navy-50: #eef3f3;
+  --color-navy-100: #d9e4e4;
+  --color-navy-500: #3b6064;
+  --color-navy-600: #294a4e;
+  --color-navy-700: #1b373b;
+  --color-navy-800: #102a2e;
+  --color-navy-850: #0b2226;
+  --color-navy-900: #071c20;
+  --color-navy-950: #031316;
+
+  /* Teal — secondary accent, used sparingly */
+  --color-teal-500: #1f9c93;
+  --color-teal-600: #167b74;
+
+  --font-sans: var(--font-inter);
+
+  --radius-card: 1.5rem;
+  --radius-btn: 0.875rem;
+
+  --shadow-card: 0 1px 2px rgb(7 28 32 / 0.04), 0 16px 45px -32px rgb(7 28 32 / 0.28);
+  --shadow-card-hover: 0 18px 48px -22px rgb(7 28 32 / 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #071c20;
+  font-feature-settings: "cv11", "ss01";
+}
+
+.site-shell section.bg-slate-50 {
+  background-color: #f4f8f7;
+}
+
+.medtech-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+::selection {
+  background: var(--color-brand-200);
+  color: var(--color-brand-950);
+}
+
+/* Motion layer: native CSS + one small IntersectionObserver component. */
+.hero-product {
+  animation: hero-product 13s ease-out both;
+  transform-origin: 72% 50%;
+}
+
+.page-hero-image {
+  animation: page-hero-camera 10s ease-out both;
+  transform-origin: 72% 50%;
+}
+
+.hero-enter {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: hero-enter 0.8s cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+}
+
+.hero-enter-1 { animation-delay: 0.08s; }
+.hero-enter-2 { animation-delay: 0.18s; }
+.hero-enter-3 { animation-delay: 0.3s; }
+.hero-enter-4 { animation-delay: 0.42s; }
+.hero-enter-5 { animation-delay: 0.56s; }
+
+.hero-scan {
+  animation: scan-line 5.5s ease-in-out infinite;
+}
+
+.live-dot {
+  animation: live-dot 1.9s ease-out infinite;
+  box-shadow: 0 0 0 0 rgb(112 214 209 / 0.45);
+}
+
+.scroll-cue span span {
+  animation: scroll-dot 1.7s ease-in-out infinite;
+}
+
+.menu-pop {
+  transform-origin: 50% 0;
+  animation: menu-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.nav-pill {
+  position: relative;
+}
+
+.nav-pill::after {
+  position: absolute;
+  right: 14px;
+  bottom: 3px;
+  left: 14px;
+  height: 1.5px;
+  content: "";
+  background: var(--color-brand-500);
+  transform: scaleX(0);
+  transform-origin: 50%;
+  transition: transform 220ms ease;
+}
+
+.nav-pill:hover::after {
+  transform: scaleX(1);
+}
+
+.btn-flash::after {
+  position: absolute;
+  top: -80%;
+  bottom: -80%;
+  left: -35%;
+  width: 24%;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.42), transparent);
+  transform: translateX(-200%) rotate(18deg);
+  transition: transform 0.7s ease;
+}
+
+.btn-flash:hover::after {
+  transform: translateX(690%) rotate(18deg);
+}
+
+.brand-marquee {
+  animation: brand-marquee 28s linear infinite;
+}
+
+.brand-marquee:hover {
+  animation-play-state: paused;
+}
+
+.icon-orbit svg,
+a .icon-orbit svg {
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.icon-orbit:hover svg,
+a:hover .icon-orbit svg {
+  transform: rotate(-10deg) scale(1.12);
+}
+
+.showcase-image {
+  animation: showcase-camera 12s ease-in-out infinite alternate;
+  transform-origin: 68% 50%;
+}
+
+.showcase-fact {
+  animation: showcase-float 5s ease-in-out infinite;
+}
+
+.contact-orb {
+  animation: contact-breathe 4s ease-in-out infinite;
+}
+
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(34px);
+  transition:
+    opacity 0.85s cubic-bezier(0.2, 0.75, 0.25, 1),
+    transform 0.85s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.reveal-ready [data-reveal="scale"] {
+  transform: translateY(24px) scale(0.975);
+}
+
+.reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.reveal-ready a[data-reveal].is-revealed:hover,
+.reveal-ready article[data-reveal].is-revealed:hover {
+  transform: translateY(-0.375rem) scale(1);
+}
+
+.reveal-grid [data-reveal]:nth-child(2n) { transition-delay: 0.1s; }
+
+@keyframes hero-enter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-product {
+  from { opacity: 0.2; transform: scale(1.08) translateX(2%); }
+  to { opacity: 1; transform: scale(1) translateX(0); }
+}
+
+@keyframes page-hero-camera {
+  from { opacity: 0.28; transform: scale(1.08) translateX(1.5%); }
+  to { opacity: 1; transform: scale(1.015) translateX(0); }
+}
+
+@keyframes scan-line {
+  0%, 100% { opacity: 0; transform: translateY(10vh); }
+  18%, 70% { opacity: 0.5; }
+  88% { opacity: 0; transform: translateY(78vh); }
+}
+
+@keyframes live-dot {
+  70% { box-shadow: 0 0 0 8px rgb(112 214 209 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(112 214 209 / 0); }
+}
+
+@keyframes scroll-dot {
+  0% { opacity: 0; transform: translate(-50%, 0); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, 18px); }
+}
+
+@keyframes menu-pop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes brand-marquee {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes showcase-camera {
+  from { transform: scale(1.02) translateX(0); }
+  to { transform: scale(1.1) translateX(-1.2%); }
+}
+
+@keyframes showcase-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes contact-breathe {
+  0%, 100% { box-shadow: 0 12px 36px -18px rgb(7 28 32 / 0.42); }
+  50% { box-shadow: 0 15px 40px -14px rgb(24 170 166 / 0.42); }
+}
+
+@media (max-width: 640px) {
+  .hero-stage,
+  .hero-stage > div:last-child {
+    min-height: 720px;
+  }
+
+  .hero-product {
+    object-position: 72% center;
+    opacity: 0.68;
+  }
+
+  .page-hero-image {
+    object-position: 72% center;
+    opacity: 0.62;
+  }
+
+  .showcase-image {
+    object-position: 72% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hero-enter,
+  .reveal-ready [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
