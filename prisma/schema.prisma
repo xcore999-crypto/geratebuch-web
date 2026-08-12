@@ -1,0 +1,265 @@
+// geratebuch.de — Gerätekatalog & Geräteakte data model
+// learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------------------------------------------------------------------------
+// Technology catalog (admin-managed, shared reference data)
+// ---------------------------------------------------------------------------
+
+model TechnologyCategory {
+  id          String   @id @default(cuid())
+  nameDe      String
+  nameEn      String
+  slug        String   @unique
+  description String?
+  icon        String   @default("layers")
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  technologies Technology[]
+
+  @@map("technology_categories")
+}
+
+model Technology {
+  id          String   @id @default(cuid())
+  category    TechnologyCategory @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  nameDe      String
+  nameEn      String
+  shortName   String?
+  slug        String   @unique
+  description String?
+  /// comma-separated normalized search synonyms, e.g. "ndyag,nd yag,yag laser"
+  synonyms    String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  deviceModelLinks DeviceModelTechnology[]
+  deviceLinks      DeviceTechnology[]
+
+  @@index([categoryId])
+  @@map("technologies")
+}
+
+model Manufacturer {
+  id             String   @id @default(cuid())
+  name           String
+  /// normalized (lowercase, punctuation-stripped) name used to prevent duplicates
+  normalizedName String   @unique
+  website        String?
+  country        String?
+  active         Boolean  @default(true)
+  /// set when this manufacturer record was merged into another (kept for history)
+  mergedIntoId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  deviceModels DeviceModel[]
+  devices      Device[]
+
+  @@map("manufacturers")
+}
+
+model DeviceModel {
+  id               String   @id @default(cuid())
+  manufacturer     Manufacturer @relation(fields: [manufacturerId], references: [id])
+  manufacturerId   String
+  modelName        String
+  normalizedName   String
+  /// comma-separated alternative spellings/names
+  alternativeNames String?
+  description      String?
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  technologies DeviceModelTechnology[]
+  devices      Device[]
+
+  @@unique([manufacturerId, normalizedName])
+  @@map("device_models")
+}
+
+model DeviceModelTechnology {
+  id            String @id @default(cuid())
+  deviceModel   DeviceModel @relation(fields: [deviceModelId], references: [id], onDelete: Cascade)
+  deviceModelId String
+  technology    Technology @relation(fields: [technologyId], references: [id])
+  technologyId  String
+
+  @@unique([deviceModelId, technologyId])
+  @@map("device_model_technologies")
+}
+
+// ---------------------------------------------------------------------------
+// Tenant / client structures
+// ---------------------------------------------------------------------------
+
+model Organization {
+  id            String   @id @default(cuid())
+  name          String
+  contactPerson String   @default("")
+  email         String
+  phone         String?
+  customerSince DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  locations       Location[]
+  devices         Device[]
+  serviceRequests ServiceRequest[]
+
+  @@map("organizations")
+}
+
+model Location {
+  id             String   @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  name           String
+  address        String?
+  createdAt      DateTime @default(now())
+
+  devices Device[]
+
+  @@map("locations")
+}
+
+// ---------------------------------------------------------------------------
+// Client device records (Geräteakte) — separate from the catalog
+// ---------------------------------------------------------------------------
+
+model Device {
+  id             String   @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  location       Location? @relation(fields: [locationId], references: [id])
+  locationId     String?
+
+  // Resolved catalog link (preferred path)
+  manufacturer   Manufacturer? @relation(fields: [manufacturerId], references: [id])
+  manufacturerId String?
+  deviceModel    DeviceModel? @relation(fields: [deviceModelId], references: [id])
+  deviceModelId  String?
+
+  // Fallback free-text entry when no catalog match exists yet
+  customManufacturer String?
+  customModel        String?
+
+  serialNumber       String
+  productionYear      Int?
+  purchaseDate         DateTime?
+  commissioningDate    DateTime?
+  devicePhotoUrl       String?
+  typenschildPhotoUrl  String?
+  notes                String?
+
+  status             String   @default("ok") // ok | due_soon | overdue
+  /// true when this device was registered via the "nicht gefunden" fallback and
+  /// still needs an EuroIPL admin to link/create the official catalog entry
+  catalogReviewRequired Boolean @default(false)
+  /// legal/technical classification is a SEPARATE, admin-only judgement —
+  /// never inferred automatically from the technology catalog selection
+  classificationStatus  String  @default("not_reviewed") // not_reviewed | review_required | reviewed
+  classificationNote     String?
+
+  lastServiceDate     DateTime?
+  lastServiceType      String?
+  nextServiceDate       DateTime?
+  nextServiceReason     String?
+
+  registeredAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  technologies    DeviceTechnology[]
+  history         HistoryEvent[]
+  documents       Document[]
+  serviceRequests ServiceRequest[]
+
+  @@index([organizationId])
+  @@map("devices")
+}
+
+model DeviceTechnology {
+  id           String @id @default(cuid())
+  device       Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId     String
+  technology   Technology @relation(fields: [technologyId], references: [id])
+  technologyId String
+
+  @@unique([deviceId, technologyId])
+  @@map("device_technologies")
+}
+
+model HistoryEvent {
+  id          String   @id @default(cuid())
+  device      Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId    String
+  date        DateTime
+  type        String   // registrierung | wartung | reparatur | pruefung | beratung
+  title       String
+  description String
+  technician  String
+  document    Document? @relation("EventDocument", fields: [documentId], references: [id])
+  documentId  String?  @unique
+  createdAt   DateTime @default(now())
+
+  @@index([deviceId])
+  @@map("history_events")
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  device       Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId     String
+  title        String
+  type         String   // Servicebericht | Wartungsprotokoll | Prüfprotokoll | Reparaturbericht | Beratungsdokumentation
+  date         DateTime
+  fileSize     String
+  historyEvent HistoryEvent? @relation("EventDocument")
+  createdAt    DateTime @default(now())
+
+  @@index([deviceId])
+  @@map("documents")
+}
+
+model ServiceRequest {
+  id             String   @id @default(cuid())
+  publicId       String   @unique // human-facing e.g. REQ-2026-041
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  device         Device @relation(fields: [deviceId], references: [id])
+  deviceId       String
+
+  serviceSlug String
+  serviceName String
+  status      String @default("erhalten") // erhalten | rueckfrage | eingeplant | in_bearbeitung | abgeschlossen | storniert
+  description String
+
+  /// snapshot of the device's identification at request time, so later
+  /// catalog edits never rewrite what this historical request says
+  deviceSnapshotName String
+
+  scheduledDate  DateTime?
+  lastUpdate     DateTime  @default(now())
+  lastUpdateNote String
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([deviceId])
+  @@map("service_requests")
+}

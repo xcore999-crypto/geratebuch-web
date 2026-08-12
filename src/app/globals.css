@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand blue — primary geratebuch.de color (CTAs, links, active states) */
+  --color-brand-50: #eef3ff;
+  --color-brand-100: #dee7fe;
+  --color-brand-200: #bcd0fd;
+  --color-brand-300: #8fb0fc;
+  --color-brand-400: #5c8bf8;
+  --color-brand-500: #3766ee;
+  --color-brand-600: #2650d9;
+  --color-brand-700: #1f3fb0;
+  --color-brand-800: #1c368c;
+  --color-brand-900: #1b3070;
+  --color-brand-950: #101c42;
+
+  /* Navy — portal dark surface */
+  --color-navy-50: #eef1f6;
+  --color-navy-100: #dbe2ec;
+  --color-navy-500: #33578c;
+  --color-navy-600: #24406b;
+  --color-navy-700: #1a2f52;
+  --color-navy-800: #122240;
+  --color-navy-850: #0e1b34;
+  --color-navy-900: #0b1830;
+  --color-navy-950: #060f1c;
+
+  /* Teal — secondary accent, used sparingly */
+  --color-teal-500: #1f9c93;
+  --color-teal-600: #167b74;
+
+  --font-sans: var(--font-inter);
+
+  --radius-card: 1.125rem;
+  --radius-btn: 0.625rem;
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 12px -2px rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 4px 10px -2px rgb(15 23 42 / 0.08), 0 2px 24px -4px rgb(15 23 42 / 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: #0f1f35;
+  font-feature-settings: "cv11", "ss01";
+}
+
+::selection {
+  background: var(--color-brand-200);
+  color: var(--color-brand-950);
 }
