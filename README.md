@@ -8,7 +8,7 @@ Public marketing site + client portal + internal admin/catalog tool, built with 
 
 - **Next.js 16** (App Router, Server Actions, Turbopack)
 - **Tailwind CSS v4**
-- **Prisma 7** with the `better-sqlite3` driver adapter (local file-based SQLite DB)
+- **Prisma 7** with Cloudflare D1
 
 ## Project structure
 
@@ -16,21 +16,28 @@ Public marketing site + client portal + internal admin/catalog tool, built with 
 - `src/app/portal` — client portal (device registry, service requests, documents) — light theme
 - `src/app/admin` — internal EuroIPL tool (device/technology catalog management, review queue) — dark theme
 - `prisma/schema.prisma` — data model (technology catalog, manufacturers, device models, devices, service requests…)
-- `prisma/seed.ts` + `prisma/seed-data.ts` — full technology taxonomy + demo tenant data
+- `prisma/seed.sql` — full technology taxonomy + demo tenant data
 
 ## Getting started
 
 ```bash
 npm install
-npm run db:setup  # creates dev.db from the checked-in migrations and seeds the demo data
+npm run db:migrate:local
+npm run db:seed:local
 npm run dev
 ```
 
-To reset an existing demo database without recreating its schema:
+The Next.js development server uses the local D1 database managed by Wrangler.
+
+## Cloudflare Workers
 
 ```bash
-npm run db:seed
+npm run deploy
+npm run db:migrate:remote
+npm run db:seed:remote # initial deployment only
 ```
+
+The Worker and D1 database are provisioned from `wrangler.jsonc`. Cloudflare's Git build should use `npm run deploy` on the `master` branch.
 
 Open [http://localhost:3000](http://localhost:3000) for the public site, `/portal` for the client portal, and `/admin/katalog` for the internal catalog tool.
 
